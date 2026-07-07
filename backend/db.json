@@ -1,0 +1,205 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin Dinas",
+      "email": "admin@disnakertrans.go.id",
+      "password": "admin123",
+      "role": "admin"
+    },
+    {
+      "id": 2,
+      "name": "PT. Bina Karya",
+      "email": "pt.binakarya@mail.com",
+      "password": "pt123",
+      "role": "pt"
+    },
+    {
+      "id": 3,
+      "name": "PT. Global Mandiri",
+      "email": "pt.global@mail.com",
+      "password": "pt123",
+      "role": "pt"
+    }
+  ],
+  "perusahaan": [
+    {
+      "id": 1,
+      "nama": "PT. Bina Karya",
+      "alamat": "Jl. Merdeka No. 123, Lombok Tengah",
+      "kontak": "087654321"
+    },
+    {
+      "id": 2,
+      "nama": "PT. Global Mandiri",
+      "alamat": "Jl. Raya No. 45, Lombok Tengah",
+      "kontak": "087654322"
+    }
+  ],
+  "laporan": [
+    {
+      "id": 1,
+      "perusahaan_id": 2,
+      "perusahaan": "PT. Bina Karya",
+      "periode": "2025-07",
+      "jumlah": 25,
+      "negara": "Malaysia",
+      "file": "laporan_jul2025.pdf",
+      "status": "diterima",
+      "catatan": "Data lengkap, valid.",
+      "tgl_upload": "2025-08-01",
+      "tgl_konfirmasi": "2025-08-03",
+      "cpmi_list": ["Ahmad Fauzi", "Siti Nurhaliza", "Bambang Supriyadi", "Dewi Sartika", "Hendra Gunawan"]
+    },
+    {
+      "id": 2,
+      "perusahaan_id": 2,
+      "perusahaan": "PT. Bina Karya",
+      "periode": "2026-01",
+      "jumlah": 30,
+      "negara": "Taiwan",
+      "file": "laporan_jan2026.pdf",
+      "status": "diterima",
+      "catatan": "Data lengkap dan valid.",
+      "tgl_upload": "2026-02-01",
+      "tgl_konfirmasi": "2026-06-24 04:03:02",
+      "cpmi_list": ["Rudi Hartono", "Mega Wati", "Agus Salim", "Fitriani", "Dodi Permana"]
+    },
+    {
+      "id": 3,
+      "perusahaan_id": 3,
+      "perusahaan": "PT. Global Mandiri",
+      "periode": "2025-06",
+      "jumlah": 15,
+      "negara": "Hong Kong",
+      "file": "laporan_jun2025.pdf",
+      "status": "diterima",
+      "catatan": "Disetujui.",
+      "tgl_upload": "2025-07-10",
+      "tgl_konfirmasi": "2025-07-12",
+      "cpmi_list": ["Indra Lesmana", "Ratna Sari", "Adi Pratama", "Rina Marlina"]
+    },
+    {
+      "id": 4,
+      "perusahaan_id": 3,
+      "perusahaan": "PT. Global Mandiri",
+      "periode": "2025-12",
+      "jumlah": 20,
+      "negara": "Korea Selatan",
+      "file": "laporan_des2025.pdf",
+      "status": "ditolak",
+      "catatan": "Data tidak lengkap.",
+      "tgl_upload": "2026-01-05",
+      "tgl_konfirmasi": "2026-01-08",
+      "cpmi_list": ["Dimas Ardiansyah", "Putri Ayu", "Dian Permata"]
+    }
+  ],
+  "log_aktivitas": [
+    {
+      "id": 1,
+      "user_id": 2,
+      "user_name": "PT. Bina Karya",
+      "aksi": "Upload Laporan",
+      "detail": "Upload laporan periode 2025-07 (25 CPMI ke Malaysia)",
+      "waktu": "2025-08-01"
+    },
+    {
+      "id": 2,
+      "user_id": 1,
+      "user_name": "Admin Dinas",
+      "aksi": "Konfirmasi Terima",
+      "detail": "Menerima laporan PT. Bina Karya - 2025-07",
+      "waktu": "2025-08-03"
+    },
+    {
+      "id": 3,
+      "user_id": 3,
+      "user_name": "PT. Global Mandiri",
+      "aksi": "Upload Laporan",
+      "detail": "Upload laporan periode 2025-06 (15 CPMI ke Hong Kong)",
+      "waktu": "2025-07-10"
+    },
+    {
+      "id": 4,
+      "user_id": 1,
+      "user_name": "Admin Dinas",
+      "aksi": "Konfirmasi Terima",
+      "detail": "Menerima laporan PT. Global Mandiri - 2025-06",
+      "waktu": "2025-07-12"
+    },
+    {
+      "id": 5,
+      "user_id": 3,
+      "user_name": "PT. Global Mandiri",
+      "aksi": "Upload Laporan",
+      "detail": "Upload laporan periode 2025-12 (20 CPMI ke Korea Selatan)",
+      "waktu": "2026-01-05"
+    },
+    {
+      "id": 6,
+      "user_id": 1,
+      "user_name": "Admin Dinas",
+      "aksi": "Konfirmasi Tolak",
+      "detail": "Menolak laporan PT. Global Mandiri - 2025-12. Catatan: Data tidak lengkap.",
+      "waktu": "2026-01-08"
+    },
+    {
+      "id": 7,
+      "user_id": 1,
+      "user_name": "Admin Dinas",
+      "aksi": "Konfirmasi Terima",
+      "detail": "Menerima laporan PT. Bina Karya - 2026-01. Catatan: Data lengkap dan valid.",
+      "waktu": "2026-06-24 04:03:02"
+    }
+  ],
+  "notifikasi": [
+    {
+      "id": 1,
+      "user_id": 2,
+      "title": "Laporan Diterima",
+      "message": "Laporan periode 2025-07 telah diterima oleh Admin Dinas.",
+      "jenis": "diterima",
+      "dibaca": true,
+      "terkait_id": 1,
+      "dibuat": "2025-08-03 10:00:00"
+    },
+    {
+      "id": 2,
+      "user_id": 3,
+      "title": "Laporan Diterima",
+      "message": "Laporan periode 2025-06 telah diterima oleh Admin Dinas.",
+      "jenis": "diterima",
+      "dibaca": false,
+      "terkait_id": 3,
+      "dibuat": "2025-07-12 10:00:00"
+    },
+    {
+      "id": 3,
+      "user_id": 3,
+      "title": "Laporan Ditolak",
+      "message": "Laporan periode 2025-12 ditolak. Catatan: Data tidak lengkap.",
+      "jenis": "ditolak",
+      "dibaca": false,
+      "terkait_id": 4,
+      "dibuat": "2026-01-08 10:00:00"
+    },
+    {
+      "id": 4,
+      "user_id": 2,
+      "title": "Laporan Diterima",
+      "message": "Laporan periode 2026-01 telah diterima oleh Admin Dinas.",
+      "jenis": "diterima",
+      "dibaca": true,
+      "terkait_id": 2,
+      "dibuat": "2026-06-24 04:03:02"
+    }
+  ],
+  "_nextId": {
+    "users": 4,
+    "perusahaan": 3,
+    "laporan": 5,
+    "log_aktivitas": 8,
+    "notifikasi": 5,
+    "cpmi": 1
+  }
+}
