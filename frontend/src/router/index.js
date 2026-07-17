@@ -19,6 +19,7 @@ const routes = [
       { path: 'rekap', name: 'Rekap', component: () => import('../views/admin/Rekap.vue') },
       { path: 'perusahaan', name: 'Perusahaan', component: () => import('../views/admin/Perusahaan.vue') },
       { path: 'log-aktivitas', name: 'LogAktivitas', component: () => import('../views/admin/LogAktivitas.vue') },
+      { path: 'akun', name: 'Akun', component: () => import('../views/admin/Akun.vue') },
       { path: 'pengaturan', name: 'Pengaturan', component: () => import('../views/admin/Pengaturan.vue') },
     ]
   },

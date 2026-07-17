@@ -6,7 +6,7 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(config => {
-  const saved = localStorage.getItem('user')
+  const saved = sessionStorage.getItem('user')
   if (saved) {
     try {
       const { token } = JSON.parse(saved)
@@ -20,7 +20,7 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('user')
+      sessionStorage.removeItem('user')
       window.location.href = '/login'
     }
     return Promise.reject(error)

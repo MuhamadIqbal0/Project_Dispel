@@ -1,6 +1,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useLaporanStore } from '../../stores/laporan'
+import { jsPDF } from 'jspdf'
+import { autoTable, applyPlugin } from 'jspdf-autotable'
+applyPlugin(jsPDF)
 
 const store = useLaporanStore()
 const filterPeriode = ref('')
@@ -34,13 +37,41 @@ const totalRekap = () => rekapData.value.reduce((acc, r) => ({
   pending: acc.pending + r.pending,
 }), { total: 0, diterima: 0, ditolak: 0, pending: 0 })
 
+function exportPDF() {
+  const doc = new jsPDF('landscape', 'mm', 'a4')
+  doc.setFontSize(16)
+  doc.text('Rekap Data CPMI', 14, 16)
+  doc.setFontSize(10)
+  doc.text('Tanggal Export: ' + new Date().toLocaleDateString('id-ID'), 14, 23)
+
+  const rows = rekapData.value.map(r => [
+    r.periode, String(r.total), String(r.diterima), String(r.ditolak), String(r.pending)
+  ])
+
+  if (rekapData.value.length > 0) {
+    const t = totalRekap()
+    rows.push(['TOTAL', String(t.total), String(t.diterima), String(t.ditolak), String(t.pending)])
+  }
+
+  doc.autoTable({
+    startY: 28,
+    head: [['Periode', 'Total', 'Diterima', 'Ditolak', 'Pending']],
+    body: rows,
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [13, 148, 136] },
+    footStyles: { fillColor: [243, 244, 246], textColor: [17, 24, 39], fontStyle: 'bold' },
+  })
+
+  doc.save('rekap-cpmi-' + new Date().toISOString().split('T')[0] + '.pdf')
+}
+
 function exportCSV() {
   const header = 'Periode,Total,Diterima,Ditolak,Pending\n'
-  const rows = rekapData.value.map(r => `${r.periode},${r.total},${r.diterima},${r.ditolak},${r.pending}`).join('\n')
+  const rows = rekapData.value.map(r => r.periode + ',' + r.total + ',' + r.diterima + ',' + r.ditolak + ',' + r.pending).join('\n')
   const blob = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8;' })
   const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
-  link.download = `rekap-cpmi-${new Date().toISOString().split('T')[0]}.csv`
+  link.download = 'rekap-cpmi-' + new Date().toISOString().split('T')[0] + '.csv'
   link.click()
 }
 </script>
@@ -52,9 +83,13 @@ function exportCSV() {
     <div class="card">
       <div class="toolbar">
         <h3 class="section-title">Rekap Data CPMI</h3>
-        <button class="btn btn-primary btn-sm" @click="exportCSV">
+        <button class="btn btn-teal btn-sm" @click="exportPDF">
+          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
+          Export PDF
+        </button>
+        <button class="btn btn-teal btn-sm" @click="exportCSV">
           <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-          Ekspor CSV
+          Export Excel
         </button>
       </div>
 

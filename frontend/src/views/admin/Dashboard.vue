@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useLaporanStore } from '../../stores/laporan'
 
 const store = useLaporanStore()
 const stats = ref({ total: 0, pending: 0, diterima: 0, ditolak: 0 })
+const chartData = ref([])
 const recentLaporan = ref([])
 const selectedLaporan = ref(null)
 const showDetailModal = ref(false)
@@ -13,10 +14,33 @@ function openDetail(l) {
   showDetailModal.value = true
 }
 
+const donutSegments = computed(() => {
+  const t = stats.value.total || 1
+  const items = [
+    { label: 'Diterima', value: stats.value.diterima, color: '#0d9488' },
+    { label: 'Pending', value: stats.value.pending, color: '#f59e0b' },
+    { label: 'Ditolak', value: stats.value.ditolak, color: '#ef4444' },
+  ]
+  let offset = 0
+  return items.map(item => {
+    const length = (item.value / t) * 251.2
+    const seg = { ...item, dasharray: `${length} ${251.2 - length}`, dashoffset: -offset }
+    offset += length
+    return seg
+  })
+})
+
+const maxChartValue = computed(() => {
+  return Math.max(...chartData.value.map(d => d.total), 1)
+})
+
 onMounted(async () => {
   await Promise.all([
     store.fetchLaporan(),
     store.fetchStats().then(s => stats.value = s),
+    store.fetchRekap().then(r => {
+      chartData.value = r.slice(0, 6).reverse()
+    }),
   ])
   recentLaporan.value = [...store.laporanList].slice(0, 5)
 })
@@ -68,12 +92,22 @@ const cards = [
         <div class="toolbar">
           <h3 class="section-title">Grafik Laporan per Periode</h3>
         </div>
-        <div class="chart-placeholder">
+        <div class="chart-wrap">
           <div class="bar-chart">
-            <div v-for="i in 6" :key="i" class="bar-group">
-              <div class="bar" :style="{ height: (30 + Math.random() * 50) + '%' }"></div>
-              <span class="bar-label">B{{ i }}</span>
+            <div v-for="d in chartData" :key="d.periode" class="bar-group">
+              <div class="bar-stack">
+                <div class="bar bar-ditolak" :style="{ height: (d.ditolak / maxChartValue) * 100 + '%' }" title="Ditolak: {{ d.ditolak }}"></div>
+                <div class="bar bar-pending" :style="{ height: (d.pending / maxChartValue) * 100 + '%' }" title="Pending: {{ d.pending }}"></div>
+                <div class="bar bar-diterima" :style="{ height: (d.diterima / maxChartValue) * 100 + '%' }" title="Diterima: {{ d.diterima }}"></div>
+              </div>
+              <span class="bar-label">{{ d.periode }}</span>
             </div>
+            <div v-if="chartData.length === 0" class="chart-empty">Belum ada data laporan</div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><span class="legend-dot" style="background:#0d9488;"></span> Diterima</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> Pending</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span> Ditolak</div>
           </div>
         </div>
       </div>
@@ -84,13 +118,12 @@ const cards = [
         </div>
         <div class="donut-wrap">
           <svg viewBox="0 0 100 100" class="donut">
-            <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" stroke-width="18"/>
-            <circle cx="50" cy="50" r="40" fill="none" stroke="#0d9488" stroke-width="18"
-              stroke-dasharray="251.2" stroke-dashoffset="100.48"
-              transform="rotate(-90 50 50)" stroke-linecap="round"/>
-            <circle cx="50" cy="50" r="40" fill="none" stroke="#1e3a5f" stroke-width="18"
-              stroke-dasharray="75.36" stroke-dashoffset="276.32"
-              transform="rotate(-90 50 50)" stroke-linecap="round"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#f3f4f6" stroke-width="18"/>
+            <circle v-for="s in donutSegments" :key="s.label"
+              cx="50" cy="50" r="40" fill="none"
+              :stroke="s.color" stroke-width="18" stroke-linecap="round"
+              :stroke-dasharray="s.dasharray" :stroke-dashoffset="s.dashoffset"
+              transform="rotate(-90 50 50)"/>
           </svg>
           <div class="donut-center">
             <span class="donut-total">{{ stats.total }}</span>
@@ -99,8 +132,8 @@ const cards = [
         </div>
         <div class="donut-legend">
           <div class="legend-item"><span class="legend-dot" style="background:#0d9488;"></span> Diterima ({{ stats.diterima }})</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#1e3a5f;"></span> Pending ({{ stats.pending }})</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#e5e7eb;"></span> Ditolak ({{ stats.ditolak }})</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> Pending ({{ stats.pending }})</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span> Ditolak ({{ stats.ditolak }})</div>
         </div>
       </div>
     </div>
@@ -178,16 +211,39 @@ const cards = [
 </template>
 
 <style scoped>
-.chart-placeholder {
-  height: 200px; display: flex; align-items: flex-end;
+.chart-wrap {
+  display: flex; flex-direction: column; gap: 16px;
 }
+.chart-wrap .chart-legend {
+  display: flex; gap: 16px; justify-content: center;
+}
+.chart-wrap .legend-item { font-size: 12px; color: var(--gray-500); }
+.chart-wrap .legend-dot { width: 8px; height: 8px; }
+
 .bar-chart {
-  display: flex; gap: 16px; align-items: flex-end; width: 100%; height: 100%;
-  padding-top: 20px;
+  display: flex; gap: 12px; align-items: flex-end; width: 100%; height: 200px;
+  padding: 24px 8px 0;
 }
-.bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; justify-content: flex-end; }
-.bar { width: 100%; max-width: 40px; background: var(--gray-200); border-radius: 4px 4px 0 0; min-height: 8px; }
-.bar-label { font-size: 11px; color: var(--gray-400); }
+.bar-group {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  height: 100%; justify-content: flex-end;
+}
+.bar-stack {
+  width: 100%; max-width: 36px; display: flex; flex-direction: column;
+  align-items: center; gap: 1px; height: 100%; justify-content: flex-end;
+}
+.bar {
+  width: 100%; border-radius: 3px 3px 0 0; min-height: 2px;
+  transition: height 0.5s ease;
+}
+.bar-diterima { background: #0d9488; }
+.bar-pending { background: #f59e0b; }
+.bar-ditolak { background: #ef4444; }
+.bar-label { font-size: 10px; color: var(--gray-400); white-space: nowrap; }
+.chart-empty {
+  width: 100%; text-align: center; color: var(--gray-400);
+  font-size: 13px; padding: 40px 0;
+}
 
 .donut-wrap { position: relative; width: 160px; height: 160px; margin: 0 auto; }
 .donut { width: 100%; height: 100%; }
@@ -199,8 +255,8 @@ const cards = [
 .donut-label { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
 
 .donut-legend { display: flex; flex-direction: column; gap: 6px; margin-top: 16px; }
-.legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-600); }
-.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.donut-legend .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-600); }
+.donut-legend .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
 .modal-header {
   display: flex; justify-content: space-between; align-items: flex-start;

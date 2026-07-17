@@ -13,7 +13,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const res = await api.post('/auth/login', { email, password })
       user.value = res.data.user
-      localStorage.setItem('user', JSON.stringify({ ...res.data.user, token: res.data.token }))
+      sessionStorage.setItem('user', JSON.stringify({ ...res.data.user, token: res.data.token }))
       return true
     } catch {
       return false
@@ -21,13 +21,13 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function restore() {
-    const saved = localStorage.getItem('user')
+    const saved = sessionStorage.getItem('user')
     if (saved) {
       try {
         const parsed = JSON.parse(saved)
         const res = await api.get('/auth/me')
         user.value = res.data.user
-        localStorage.setItem('user', JSON.stringify({ ...res.data.user, token: parsed.token }))
+        sessionStorage.setItem('user', JSON.stringify({ ...res.data.user, token: parsed.token }))
       } catch {
         logout()
       }
@@ -36,7 +36,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   function logout() {
     user.value = null
-    localStorage.removeItem('user')
+    sessionStorage.removeItem('user')
   }
 
   return { user, isLoggedIn, isAdmin, isPT, login, logout, restore }

@@ -8,6 +8,7 @@ const showDetail = ref(false)
 const editItem = ref(null)
 const detailItem = ref(null)
 const form = ref({ nama: '', alamat: '', kontak: '', status: 'aktif' })
+const errorMsg = ref('')
 
 onMounted(async () => {
   await store.fetchPerusahaan()
@@ -24,6 +25,7 @@ function openEdit(p) {
 }
 
 async function save() {
+  errorMsg.value = ''
   try {
     if (editItem.value) {
       await store.updatePerusahaan(editItem.value.id, form.value)
@@ -33,17 +35,18 @@ async function save() {
     await store.fetchPerusahaan()
     showForm.value = false
   } catch (err) {
-    alert('Gagal menyimpan: ' + (err.response?.data?.error || err.message))
+    errorMsg.value = err.response?.data?.error || err.message
   }
 }
 
 async function toggleStatus(p) {
+  errorMsg.value = ''
   try {
     const newStatus = p.status === 'aktif' ? 'nonaktif' : 'aktif'
     await store.updatePerusahaan(p.id, { status: newStatus })
     await store.fetchPerusahaan()
   } catch (err) {
-    alert('Gagal mengubah status: ' + (err.response?.data?.error || err.message))
+    errorMsg.value = err.response?.data?.error || 'Gagal mengubah status'
   }
 }
 
@@ -72,6 +75,7 @@ async function confirmDelete(p) {
         </button>
       </div>
 
+      <p v-if="errorMsg" class="msg-error">{{ errorMsg }}</p>
       <table class="table">
         <thead>
           <tr>

@@ -35,7 +35,7 @@ async function handleLogin() {
     <div class="login-card">
       <div class="login-header">
         <div class="logo-badge">S</div>
-        <h1 class="logo">SIPEL</h1>
+        <h1 class="logo">SistemPelporanPMI</h1>
         <p class="tagline">Sistem Informasi Pelaporan Data PMI</p>
         <p class="subtag">Disnakertrans Lombok Tengah</p>
       </div>

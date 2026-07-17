@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS users (
   name VARCHAR(100) NOT NULL,
   email VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  role ENUM('admin','pt') NOT NULL DEFAULT 'pt'
+  role ENUM('admin','pt') NOT NULL DEFAULT 'pt',
+  foto VARCHAR(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO users (id, name, email, password, role) VALUES

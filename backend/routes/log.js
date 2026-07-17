@@ -20,15 +20,20 @@ function authorize(...roles) {
 }
 
 router.get('/', authenticate, authorize('admin'), async (req, res) => {
-  const { search } = req.query;
+  const { search, aksi } = req.query;
 
-  let sql = 'SELECT * FROM log_aktivitas';
+  let sql = 'SELECT * FROM log_aktivitas WHERE 1=1';
   const params = [];
 
   if (search) {
-    sql += ' WHERE user_name LIKE ? OR aksi LIKE ? OR detail LIKE ?';
+    sql += ' AND (user_name LIKE ? OR aksi LIKE ? OR detail LIKE ?)';
     const s = `%${search}%`;
     params.push(s, s, s);
+  }
+
+  if (aksi) {
+    sql += ' AND aksi LIKE ?';
+    params.push(`%${aksi}%`);
   }
 
   sql += ' ORDER BY waktu DESC';

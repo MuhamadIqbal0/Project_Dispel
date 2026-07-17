@@ -34,9 +34,11 @@ export const useLaporanStore = defineStore('laporan', () => {
     return res.data
   }
 
-  async function fetchLog(search = '') {
-    const query = search ? `?search=${encodeURIComponent(search)}` : ''
-    const res = await api.get(`/log${query}`)
+  async function fetchLog(params = {}) {
+    const query = new URLSearchParams()
+    if (params.search) query.set('search', params.search)
+    if (params.aksi) query.set('aksi', params.aksi)
+    const res = await api.get(`/log?${query.toString()}`)
     return res.data
   }
 

@@ -25,37 +25,47 @@ router.get('/', authenticate, async (req, res) => {
 });
 
 router.post('/', authenticate, authorize('admin'), async (req, res) => {
-  const { nama, alamat, kontak, status } = req.body;
-  if (!nama) return res.status(400).json({ error: 'Nama perusahaan wajib diisi' });
+  try {
+    const { nama, alamat, kontak, status } = req.body;
+    if (!nama) return res.status(400).json({ error: 'Nama perusahaan wajib diisi' });
 
-  const result = await db.query(
-    'INSERT INTO perusahaan (nama, alamat, kontak, status) VALUES (?, ?, ?, ?)',
-    [nama, alamat || '', kontak || '', status || 'aktif']
-  );
-  const id = Number(result.insertId);
+    const result = await db.query(
+      'INSERT INTO perusahaan (nama, alamat, kontak, status) VALUES (?, ?, ?, ?)',
+      [nama, alamat || '', kontak || '', status || 'aktif']
+    );
+    const id = Number(result.insertId);
 
-  const [admin] = await db.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
-  await db.query(
-    'INSERT INTO log_aktivitas (user_id, user_name, aksi, detail, waktu) VALUES (?, ?, "Tambah Perusahaan", ?, ?)',
-    [req.user.id, admin?.name || 'Admin', `Menambahkan perusahaan: ${nama}`, db.now()]
-  );
+    const [admin] = await db.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+    await db.query(
+      'INSERT INTO log_aktivitas (user_id, user_name, aksi, detail, waktu) VALUES (?, ?, "Tambah Perusahaan", ?, ?)',
+      [req.user.id, admin?.name || 'Admin', `Menambahkan perusahaan: ${nama}`, db.now()]
+    );
 
-  const [newP] = await db.query('SELECT * FROM perusahaan WHERE id = ?', [id]);
-  res.status(201).json(newP);
+    const [newP] = await db.query('SELECT * FROM perusahaan WHERE id = ?', [id]);
+    res.status(201).json(newP);
+  } catch (err) {
+    console.error('Tambah perusahaan error:', err.message, err.stack);
+    res.status(500).json({ error: err.message || 'Gagal menambahkan perusahaan' });
+  }
 });
 
 router.put('/:id', authenticate, authorize('admin'), async (req, res) => {
-  const { nama, alamat, kontak, status } = req.body;
-  const [p] = await db.query('SELECT * FROM perusahaan WHERE id = ?', [parseInt(req.params.id)]);
-  if (!p) return res.status(404).json({ error: 'Not found' });
+  try {
+    const { nama, alamat, kontak, status } = req.body;
+    const [p] = await db.query('SELECT * FROM perusahaan WHERE id = ?', [parseInt(req.params.id)]);
+    if (!p) return res.status(404).json({ error: 'Not found' });
 
-  await db.query(
-    'UPDATE perusahaan SET nama = COALESCE(?, nama), alamat = COALESCE(?, alamat), kontak = COALESCE(?, kontak), status = COALESCE(?, status) WHERE id = ?',
-    [nama ?? null, alamat ?? null, kontak ?? null, status ?? null, parseInt(req.params.id)]
-  );
+    await db.query(
+      'UPDATE perusahaan SET nama = COALESCE(?, nama), alamat = COALESCE(?, alamat), kontak = COALESCE(?, kontak), status = COALESCE(?, status) WHERE id = ?',
+      [nama ?? null, alamat ?? null, kontak ?? null, status ?? null, parseInt(req.params.id)]
+    );
 
-  const [updated] = await db.query('SELECT * FROM perusahaan WHERE id = ?', [parseInt(req.params.id)]);
-  res.json(updated);
+    const [updated] = await db.query('SELECT * FROM perusahaan WHERE id = ?', [parseInt(req.params.id)]);
+    res.json(updated);
+  } catch (err) {
+    console.error('Update perusahaan error:', err.message);
+    res.status(500).json({ error: 'Gagal menyimpan data perusahaan' });
+  }
 });
 
 router.delete('/:id', authenticate, authorize('admin'), async (req, res) => {
